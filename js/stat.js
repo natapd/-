@@ -1,4 +1,4 @@
-
+(function(){
 var CLOUWD_HEIGHT=270;
 var CLOUWD_WIDTH=420;
 var GISTA_WIDTH=40;
@@ -55,3 +55,4 @@ for (var i=0; i<names.length; i++){
     }
 }
 };
+})();

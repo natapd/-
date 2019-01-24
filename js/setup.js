@@ -1,4 +1,4 @@
-//document.querySelector('.setup').classList.remove('hidden');
+(function(){
 
 var WizardsName=[
 'Иван', 'Хуан Себастьян', 'Мария', 'Кристоф', 'Виктор', 'Юлия', 'Люпита',
@@ -12,7 +12,7 @@ var similarListElement=document.querySelector('.setup-similar-list');
 var template=document.querySelector('#similar-wizard-template').content.querySelector('.setup-similar-item');
 //Вторая часть
 var SetupOpen=document.querySelector('.setup-open');
-var Setup=document.querySelector('.setup');
+ window.Setup=document.querySelector('.setup');
 var UserNameInput=Setup.querySelector('.setup-user-name');
 var SetupClose=document.querySelector('.setup-close');
 var ESC_KEYCODE=27;
@@ -24,6 +24,9 @@ var fireBallColors=['#ee4830','#30a8ee','#5ce6c0','#e848d5','#e6e848'];
 var CoatInput=Setup.querySelector('input[name=coat-color]');
 var EyesInput=Setup.querySelector('input[name=eyes-color]');
 var FireballInput=Setup.querySelector('input[name=fireball-color]');
+
+
+
 var randomf=function(LengthArray){
 
     var RandomI=Math.round(Math.random()*(LengthArray-1));
@@ -70,6 +73,8 @@ document.addEventListener('keydown',onPopupEscPress);
 var PopupClose=function(){
   Setup.classList.add('hidden');
   document.removeEventListener('keydown',onPopupEscPress);
+  Setup.style.top=80+'px';
+  Setup.style.left=50+'%';
 };
 
 //Обработчик событие открытие окна установки персонажа
@@ -119,3 +124,5 @@ WizardEyes.addEventListener('click',function(){
 FireballColor.addEventListener('click',function(){
   Changecolor3();
 });
+
+})();
