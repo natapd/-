@@ -5,11 +5,11 @@ var WizardsName=[
 ' Вашингтон'];
 var WizardsLastName=['да Марья', 'Верон', 'Мирабелла','Вальц', 'Онопко', 'Топольницкая',
 'Нионго','Ирвинг'];
-var coatColors=['rgb(101,137,164)','rgb(241,43,107)','rgb(146,100,161)','rgb(56,159,117)',
-'rgb(215,210,55)'];
+var coatColors=['rgb(101, 137, 164)','rgb(241, 43, 107)','rgb(146, 100, 161)','rgb(56, 159, 117)',
+'rgb(215, 210, 55)', 'rgb(0, 0, 0)'];
 var eyesColors=['black','red','blue','yellow','green'];
-var similarListElement=document.querySelector('.setup-similar-list');
-var template=document.querySelector('#similar-wizard-template').content.querySelector('.setup-similar-item');
+
+
 //Вторая часть
 var SetupOpen=document.querySelector('.setup-open');
  window.Setup=document.querySelector('.setup');
@@ -33,41 +33,116 @@ var randomf=function(LengthArray){
     return RandomI;
 
   };
-//Ручное задание волшебников
-/*var Wizards=[];
 
-for (j=0; j<4; j++) {
+//Ручное задание волшебников
+var wizards=[];
+var coatColor='rgb(101, 137, 164)';
+var eyesColor='black';
+var ballColor='#ee4830';
+
+/*for (j=0; j<4; j++) {
   Wizards[j]={
     name: WizardsName[randomf(WizardsName.length)]+' '+ WizardsLastName[randomf(WizardsLastName.length)],
     coatColor: coatColors[randomf(coatColors.length)],
     eyesColor: eyesColors[randomf(eyesColors.length)]
     };
 } */
-//Создание волшебника по шаблону
-var renderWizard = function (wizard){
-  var element=template.cloneNode(true);
-    element.querySelector('.setup-similar-label').textContent=wizard.name;
-    element.querySelector('.wizard-coat').style.fill=wizard.colorCoat;
-    element.querySelector('.wizard-eyes').style.fill=wizard.colorEyes;
-  return element;
-};
+
 // Вставка волшебников в случае успешного соединения с сервером
-var successHandler=function(wizards){
-  var fragment=document.createDocumentFragment();
-  var n=randomf(wizards.length);
-  //console.log(n+ ' '+wizards.length);
-  // Чтнение 4х волшебников из 17ти с сервера. Несколько тупое чтение, читает
-  // подряд 4-х начиная с рандомного числа массива волшебников, но чтобы избежать
-  // чтения Null читает начиная не более чем с 14ого волшебника.
-  if (n>=14){n=0}
-  for (var i=n; i<n+4; i++){
+var successHandler=function(data){
+   //Сохраняем скаченный массив волшебников
+  wizards=data;
+  //updateWizards();
 
-    fragment.appendChild(renderWizard(wizards[i]));
-   }
+    // Отрисовка похожих персонажей дефолтному
+    updateFilter();
 
-  similarListElement.appendChild(fragment);
-  document.querySelector('.setup-similar').classList.remove('hidden');
+  //Просто отрисовка любых волшебников с сервера без похожестей
+
+   /* var fragment=document.createDocumentFragment();
+    var n=randomf(wizards.length);
+    //console.log(n+ ' '+wizards.length);
+    // Чтнение 4х волшебников из 17ти с сервера. Несколько тупое чтение, читает
+    // подряд 4-х начиная с рандомного числа массива волшебников, но чтобы избежать
+    // чтения Null читает начиная не более чем с 14ого волшебника.
+    if (n>=14){n=0}
+    for (var i=n; i<n+4; i++){
+
+      fragment.appendChild(window.renderWizard(wizards[i]));
+     }
+
+    similarListElement.appendChild(fragment); */
+  };
+
+// функция ранжирования волшебников по похожести
+var getRank =function(wizard){
+  var rank = 0;
+
+    if (wizard.colorCoat === coatColor) {
+      rank += 3;
+    }
+
+    if (wizard.colorEyes === eyesColor) {
+      rank += 2;
+    }
+    if (wizard.colorFireball === ballColor) {
+      rank += 1;
+    }
+    return rank;
 };
+
+//Другая версия сортировки массива, мне не слишком понятная
+/*var namesComparator = function (leftName, rightName) {
+    if (leftName > rightName) {
+      return 1;
+    } else if (leftName < rightName) {
+      return -1;
+    } else {
+      return 0;
+    }
+  };
+
+  var wizardsComparator = function (left, right) {
+    var rankDiff = getRank(right) - getRank(left);
+    return rankDiff === 0 ? namesComparator(left.name, right.name) : rankDiff;
+  }; */
+
+  var updateFilter = function () {
+    window.render(wizards.slice().
+      sort(function(left,right){
+        var rankDiff = getRank(right) - getRank(left);
+        if (rankDiff === 0){
+          rankDiff=wizards.indexOf(left)-wizards.indexOf(right);
+        }
+        return rankDiff;
+      }));
+  };
+// Самый понятный метод выборки волшебников, но затратный
+/*var updateWizards=function(){
+
+
+ var SomeWizardCoatAndEyes=wizards.filter(function(it){
+    return ((it.colorCoat===coatColor) && (it.colorEyes===eyesColor));
+  });
+
+
+ var SomeWizardCoat=wizards.filter(function(it){
+    return it.colorCoat===coatColor;
+  });
+
+
+  var SomeWizardEyes=wizards.filter(function(it){
+    return it.colorEyes===eyesColor;
+  });
+
+
+var FiltredWizards=((SomeWizardCoatAndEyes.concat(SomeWizardCoat)).concat(SomeWizardEyes)).concat(wizards);
+var UniqueWizards=FiltredWizards.filter(function(it,i){
+    return FiltredWizards.indexOf(it) === i;
+});
+window.render(UniqueWizards);
+}; */
+
 //Неудачное соединение с сервером
 var errorHandler=function(errorMessage){
      var node = document.createElement('div');
@@ -132,32 +207,83 @@ SetupClose.addEventListener('keydown',function(evt){
 if (evt.keyCode===ENTER_KEYCODE){PopupClose();}
 
  });
-var ChangeColor=function(){
-  WizardCoat.style.fill=coatColors[randomf(coatColors.length)];
+//Старые функции изменения цвета
+/*var ChangeColor=function(){
+
+  var newColor=coatColors[randomf(coatColors.length)];
+  WizardCoat.style.fill=newColor;
+  coatColor=newColor;
   CoatInput.value=WizardCoat.style.fill;
-  console.log(CoatInput.value);
 
 };
 var ChangeColor2=function(){
-  WizardEyes.style.fill=eyesColors[randomf(eyesColors.length)];
+  var newColor=eyesColors[randomf(eyesColors.length)];
+  WizardEyes.style.fill=newColor;
+  eyesColor=newColor;
   EyesInput.value=WizardEyes.style.fill;
-  console.log(EyesInput.value);
+
 };
 var Changecolor3=function(){
-
-FireballInput.value=fireBallColors[randomf(fireBallColors.length)];
+var newColor=fireBallColors[randomf(fireBallColors.length)];
+FireballInput.value=newColor;
+ballColor=newColor;
 FireballColor.style.background=FireballInput.value;
-console.log(FireballInput.value +' ' +FireballColor.style.background);
-};
+
+}; */
+
+var wizard = {
+    onEyesChange: function (color) {
+      return color;
+    },
+    onCoatChange: function (color) {
+      return color;
+    },
+    onBallChange: function (color){
+      return color;
+    }
+  };
+//Обработчик клика по мантии
 WizardCoat.addEventListener('click',function(){
-  ChangeColor();
+  //ChangeColor();
+ // updateWizards();
+ //window.setTimeout(function(){updateFilter();},300);
+var newColor=coatColors[randomf(coatColors.length)];
+  WizardCoat.style.fill=newColor;
+  wizard.onCoatChange(newColor);
+  //CoatInput.value=WizardCoat.style.fill;
 });
+
 WizardEyes.addEventListener('click',function(){
-  ChangeColor2();
+  //ChangeColor2();
+  //updateWizards();
+  //updateFilter();
+  var newColor=eyesColors[randomf(eyesColors.length)];
+  WizardEyes.style.fill=newColor;
+  wizard.onEyesChange(newColor);
+  //EyesInput.value=WizardEyes.style.fill;
 });
+
 FireballColor.addEventListener('click',function(){
-  Changecolor3();
+  var newColor=fireBallColors[randomf(fireBallColors.length)];
+  FireballColor.style.background=newColor;
+  wizard.onBallChange(newColor);
+
 });
+ wizard.onEyesChange = window.debounce(function (color) {
+    eyesColor = color;
+    updateFilter();
+  });
+
+  wizard.onCoatChange = window.debounce(function (color) {
+    coatColor = color;
+    updateFilter();
+  });
+ wizard.onBallChange = window.debounce(function (color) {
+    ballColor = color;
+    updateFilter();
+  });
+
+
 window.backend.load(successHandler, errorHandler);
 //Сохранение данных формы на сервер
 Form.addEventListener('submit',function(evt){
